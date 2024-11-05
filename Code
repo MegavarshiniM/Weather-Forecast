@@ -1,0 +1,110 @@
+from tkinter import *
+import tkinter as tk
+from geopy.geocoders import Nominatim
+from tkinter import ttk,messagebox
+from timezonefinder import TimezoneFinder
+from datetime import *
+import requests
+import pytz
+ 
+root=Tk()
+root.title("Weather App")
+root.geometry("990x650+300+100")
+root.configure(bg="#57adff")
+root.resizable(False,False)##full
+
+image_icon=PhotoImage(file="images/season.png")
+root.iconphoto(False,image_icon)
+
+
+#search box
+Search_image=PhotoImage(file="images/Rounded Rectangle 3.png")#secson
+myimage=Label(image=Search_image,bg="#57adff")
+myimage.place(x=270,y=120)
+
+weat_image=PhotoImage(file="images/Layer 7.png")
+weatherimage=Label(root,image=weat_image,bg="#203243")
+weatherimage.place(x=290,y=127)
+
+state_name=StringVar()
+sizes=["Andhra Pradesh","Arunachal Pradesh ","Assam","Bihar","Chhattisgarh","Goa","Gujarat","Haryana","Himachal Pradesh","Jammu and Kashmir","Jharkhand","Karnataka","Kerala","Madhya Pradesh","Maharashtra","Manipur","Meghalaya","Mizoram","Nagaland","Odisha","Punjab","Rajasthan","Sikkim","Tamil Nadu","Telangana","Tripura","Uttar Pradesh","Uttarakhand","West Bengal","Andaman and Nicobar Islands","Chandigarh","Dadra and Nagar Haveli","Daman and Diu","Lakshadweep","National Capital Territory of Delhi","Puducherry"]
+En=tk.Entry(root,textvariable=state_name,justify="center",width=15,font=('poppins',25,'bold'),bg="#203243",border=0,fg="white")#values=state_list
+En.place(x=370,y=130)
+En.focus()
+
+
+
+lb=Label(root,text="Select City",font='Arial,20,bold',bg='#57adff')
+lb.place(x=410,y=90)
+lb1=Label(root,text="Weather :",font='Arial,20,bold',bg='#87CEFA')
+lb1.place(x=300,y=220)
+lb2=Label(root,text="Wind :",font='Arial,20,bold',bg='#87CEFA')
+lb2.place(x=300,y=280)
+lb3=Label(root,text="Temperature :",font='Arial,20,bold',bg='#87CEFA')
+lb3.place(x=300,y=330)
+lb4=Label(root,text="Humidity :",font='Arial,20,bold',bg='#87CEFA')
+lb4.place(x=300,y=380)
+lb5=Label(root,text="Pressure :",font='Arial,20,bold',bg='#87CEFA')
+lb5.place(x=300,y=430)
+
+lb11=Label(root,text=" ",font='Arial,20,bold',bg='#87CEFA',fg='#008B00')
+lb11.place(x=500,y=220)
+lb22=Label(root,text=" ",font='Arial,20,bold',bg='#87CEFA',fg='#008B00')
+lb22.place(x=500,y=280)
+lb33=Label(root,text=" ",font='Arial,20,bold',bg='#87CEFA',fg='#008B00')
+lb33.place(x=500,y=330)
+lb44=Label(root,text=" ",font='Arial,20,bold',bg='#87CEFA',fg='#008B00')
+lb44.place(x=500,y=380)
+lb55=Label(root,text=" ",font='Arial,20,bold',bg='#87CEFA',fg='#008B00')
+lb55.place(x=500,y=430)
+
+def get_data():
+   state=state_name.get()
+
+   geolocator=Nominatim(user_agent="geoapiExercises")
+   location= geolocator.geocode(state)
+   obj= TimezoneFinder()
+
+   result = obj.timezone_at(lng=location.longitude,lat=location.latitude)
+
+   timezone.config(text=result)
+   long_lat.config(text=f"{round(location.latitude,4)}°N,{round(location.longitude,4)}°E")
+
+   home=pytz.timezone(result)
+   local_time=datetime.now(home)
+   current_time=local_time.strftime("%I:%M %p")
+   clock.config(text=current_time)
+   
+
+   data=requests.get("https://api.openweathermap.org/data/2.5/weather?q="+state+"&appid=f82ad94ba6dd3ef08c2f2f032ef25bd3").json()
+   lb11.config(text=data["weather"][0]["main"])
+   lb22.config(text=data["wind"]["speed"])
+   lb33.config(text=str(int(data["main"]["temp"]-273)))
+   lb44.config(text=data["main"]["humidity"])
+   lb55.config(text=data["main"]["pressure"])
+   
+btn=Button(root,text="Check Weather",font='Arial,10,bold',bg='#E6E6FA',bd=5,command=get_data)
+btn.place(x=350,y=500)
+
+def create_radiobuttons():
+    for  size in enumerate(sizes):
+        r = ttk.Radiobutton(root, text=size, value=size, variable=state_name)
+        r.place(x=370, y=200)
+
+search_icon=PhotoImage(file="Images/Layer 6.png")
+myimage_icon=Button(image=search_icon,borderwidth=0,cursor="hand2",bg="#203243",command=create_radiobuttons)
+myimage_icon.place(x=645,y=125)
+
+
+#clock
+clock=Label(root,font=("Helvetica",30,'bold'),fg="white",bg="#57adff")
+clock.place(x=30,y=20)
+
+timezone=Label(root,font=("Helvetica",20),fg="white",bg="#57adff")##?
+timezone.place(x=700,y=20)
+
+long_lat=Label(root,font=("Helvetica",20),fg="white",bg="#57adff")##?
+long_lat.place(x=700,y=50)
+
+
+root.mainloop()
